@@ -1,0 +1,192 @@
+openapi: 3.0.1
+info:
+  title: Post API
+  description: API for managing Posts
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Local server
+tags:
+  - name: Post
+    description: Operations related to posts
+
+paths:
+  /posts:
+    post:
+      operationId: create-post
+      tags:
+        - Post
+      summary: Create a new Post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostRequest'
+      responses:
+        '201':
+          description: Post created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostResponse'
+        '400':
+          description: Bad Request - Invalid input
+        '500':
+          description: Internal Server Error - Unexpected error occurred
+
+    get:
+      operationId: get-all-posts
+      tags:
+        - Post
+      summary: Get all Posts
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Page number (0-based)
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+          description: Number of posts per page
+      responses:
+        '200':
+          description: A paginated list of posts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostPageResponse'
+        '500':
+          description: Internal Server Error - Unexpected error occurred
+
+  /posts/{id}:
+    get:
+      operationId: get-post-by-id
+      tags:
+        - Post
+      summary: Get a Post by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: long
+      responses:
+        '200':
+          description: Post retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostResponse'
+        '404':
+          description: Post not found
+        '500':
+          description: Internal Server Error - Unexpected error occurred
+
+    put:
+      operationId: update-post
+      tags:
+        - Post
+      summary: Update a Post by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: long
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostRequest'
+      responses:
+        '200':
+          description: Post updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostResponse'
+        '404':
+          description: Post not found
+        '400':
+          description: Bad Request - Invalid input
+        '500':
+          description: Internal Server Error - Unexpected error occurred
+
+    delete:
+      operationId: delete-post-by-id
+      tags:
+        - Post
+      summary: Delete a Post by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: long
+      responses:
+        '204':
+          description: Post deleted successfully
+        '404':
+          description: Post not found
+        '500':
+          description: Internal Server Error - Unexpected error occurred
+
+components:
+  schemas:
+    PostRequest:
+      type: object
+      required:
+        - title
+        - content
+      properties:
+        title:
+          type: string
+          example: My first post
+        content:
+          type: string
+          example: This is the content of my first post.
+
+    PostResponse:
+      type: object
+      required:
+        - id
+        - title
+        - content
+      properties:
+        id:
+          type: long
+        title:
+          type: string
+        content:
+          type: string
+
+    PostPageResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostResponse'
+        pageable:
+          type: object
+          properties:
+            pageNumber:
+              type: integer
+            pageSize:
+              type: integer
+            sort:
+              type: string
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+        numberOfElements:
+          type: integer

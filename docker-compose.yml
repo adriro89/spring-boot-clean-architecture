@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - h2
+
+  h2:
+    image: buildo/h2database
+    ports:
+      - "9092:9092"
+    environment:
+      - H2_OPTIONS=-tcp
+      - H2_OPTIONS=-tcpAllowOthers
+      - H2_OPTIONS=-ifNotExists
